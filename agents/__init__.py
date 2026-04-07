@@ -14,6 +14,7 @@ from .memory_agent import MemoryAgent
 from .output_packager import OutputPackagerAgent
 from .approval_agent import ApprovalAgent
 from .video_creator import VideoCreatorAgent
+from .youtube_uploader import YouTubeUploaderAgent
 
 __all__ = [
     "TrendAnalystAgent",
@@ -28,4 +29,5 @@ __all__ = [
     "OutputPackagerAgent",
     "ApprovalAgent",
     "VideoCreatorAgent",
+    "YouTubeUploaderAgent",
 ]

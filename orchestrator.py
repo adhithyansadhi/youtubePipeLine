@@ -27,6 +27,7 @@ from agents import (
     OutputPackagerAgent,
     ApprovalAgent,
     VideoCreatorAgent,
+    YouTubeUploaderAgent,
 )
 
 console = Console()
@@ -52,9 +53,12 @@ class Orchestrator:
         self.output_packager = OutputPackagerAgent()
         self.approval_agent = ApprovalAgent()
         self.video_creator = VideoCreatorAgent()
+        self.youtube_uploader = YouTubeUploaderAgent()
+
         # Check if video rendering is enabled
         self.pexels_key = os.getenv("PEXELS_API_KEY", "")
         self.render_video = bool(self.pexels_key) and os.getenv("SKIP_VIDEO_RENDER", "false").lower() != "true"
+        self.upload_youtube = os.getenv("YOUTUBE_UPLOAD_ENABLED", "false").lower() == "true"
 
     def run(self) -> list[dict]:
         console.print(Panel.fit(
@@ -275,6 +279,16 @@ class Orchestrator:
             else:
                 console.print("  [dim]  Video rendering skipped (SKIP_VIDEO_RENDER=true)[/dim]")
 
+        # ── Agent 14: YouTube Uploader ──────────────────────────────────
+        upload_data = {"status": "SKIPPED"}
+        if video_path and self.upload_youtube:
+            upload_data = self.youtube_uploader.run({
+                "video_path": video_path,
+                "title": package_data.get("title", ""),
+                "script": script_data.get("script", ""),
+                "selected_topic": topic,
+            })
+
         return {
             "short_index": short_index,
             "topic": topic,
@@ -282,6 +296,8 @@ class Orchestrator:
             "file_path": file_path,
             "video_path": video_path,
             "video_status": video_status,
+            "upload_status": upload_data.get("status", "SKIPPED"),
+            "upload_url": upload_data.get("url", ""),
             "qc_score": qc_result.get("overall_score", 0),
             "status": "READY_FOR_REVIEW",
         }
@@ -299,7 +315,8 @@ class Orchestrator:
         table.add_column("Topic", min_width=28)
         table.add_column("QC", justify="center", width=6)
         table.add_column("Script", justify="center", width=8)
-        table.add_column("Video", justify="center", width=16)
+        table.add_column("Video", justify="center", width=12)
+        table.add_column("YouTube", justify="center", width=12)
 
         for r in results:
             if "error" in r:
@@ -316,7 +333,15 @@ class Orchestrator:
                 elif vs == "SKIPPED":
                     video_col = "[dim]SKIPPED[/dim]"
                 else:
-                    video_col = "[yellow]FAILED[/yellow]"
+                    video_col = "[dim]FAILED[/dim]"
+                
+                us = r.get("upload_status", "SKIPPED")
+                if us == "UPLOAD_SUCCESSFUL":
+                    upload_col = "[bold green]UPLOADED[/bold green]"
+                elif us == "UPLOAD_FAILED":
+                    upload_col = "[red]FAILED[/red]"
+                else:
+                    upload_col = "[dim]SKIPPED[/dim]"
 
                 table.add_row(
                     str(r.get("short_index", "?")),
@@ -324,6 +349,7 @@ class Orchestrator:
                     f"{r.get('qc_score', '?')}/10",
                     "[bold green]READY[/bold green]",
                     video_col,
+                    upload_col,
                 )
 
         console.print(table)
