@@ -11,6 +11,7 @@ from .audio_engineer import AudioEngineerAgent
 from .subtitle_agent import SubtitleAgent
 from .quality_control import QualityControlAgent
 from .memory_agent import MemoryAgent
+from .fact_checker import FactCheckerAgent
 from .output_packager import OutputPackagerAgent
 from .approval_agent import ApprovalAgent
 from .video_creator import VideoCreatorAgent
@@ -26,6 +27,7 @@ __all__ = [
     "SubtitleAgent",
     "QualityControlAgent",
     "MemoryAgent",
+    "FactCheckerAgent",
     "OutputPackagerAgent",
     "ApprovalAgent",
     "VideoCreatorAgent",

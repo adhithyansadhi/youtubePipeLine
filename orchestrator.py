@@ -24,6 +24,7 @@ from agents import (
     SubtitleAgent,
     QualityControlAgent,
     MemoryAgent,
+    FactCheckerAgent,
     OutputPackagerAgent,
     ApprovalAgent,
     VideoCreatorAgent,
@@ -32,7 +33,8 @@ from agents import (
 
 console = Console()
 
-MAX_QC_RETRIES = 2  # Max script rewrites before force-passing
+MAX_QC_RETRIES = 2       # Max script rewrites before force-passing
+MAX_FACT_RETRIES = 2     # Max fact-check rejections before force-passing
 
 
 class Orchestrator:
@@ -50,6 +52,7 @@ class Orchestrator:
         self.subtitle_agent = SubtitleAgent()
         self.quality_control = QualityControlAgent()
         self.memory_agent = MemoryAgent()
+        self.fact_checker = FactCheckerAgent()
         self.output_packager = OutputPackagerAgent()
         self.approval_agent = ApprovalAgent()
         self.video_creator = VideoCreatorAgent()
@@ -182,6 +185,55 @@ class Orchestrator:
                 console.print(f"  [dim]Feedback: {qc_feedback[:120]}...[/dim]")
                 if force_pass:
                     break
+
+        # ── Agent 15: Fact Checker (post-QC verification) ───────────────
+        for fact_attempt in range(1, MAX_FACT_RETRIES + 2):
+            self._log("Fact Checker", f"Verifying script claims (attempt {fact_attempt})...")
+            time.sleep(1)
+            fact_result = self.fact_checker.run({
+                "script": script_data.get("script", ""),
+                "selected_topic": topic,
+            })
+
+            is_verified = fact_result.get("verified", True)
+            claims = fact_result.get("claims", [])
+            false_claims = [c for c in claims if c.get("verdict") == "FALSE"]
+            true_claims = [c for c in claims if c.get("verdict") == "TRUE"]
+
+            console.print(
+                f"  [dim]Claims: {len(true_claims)} verified, "
+                f"{len(false_claims)} false, "
+                f"{len(claims) - len(true_claims) - len(false_claims)} unverifiable[/dim]"
+            )
+
+            if is_verified or not false_claims:
+                console.print(f"  [bold green]✓ FACT CHECK PASSED[/bold green] — {fact_result.get('summary', '')}")
+                break
+            else:
+                # Show what's wrong
+                for fc in false_claims:
+                    console.print(f"  [red]✗ FALSE:[/red] {fc.get('claim', '')[:80]}")
+                    if fc.get("correction"):
+                        console.print(f"    [green]→ Correct:[/green] {fc['correction'][:80]}")
+
+                if fact_attempt > MAX_FACT_RETRIES:
+                    console.print("  [yellow]⚠ Force-passing fact check after max retries[/yellow]")
+                    break
+
+                # Rewrite the script with corrections
+                corrections = fact_result.get("corrected_facts", "")
+                if not corrections:
+                    corrections = "; ".join(
+                        f"{c['claim']} → {c['correction']}" for c in false_claims if c.get('correction')
+                    )
+
+                self._log("Script Writer", f"Rewriting script with fact corrections (attempt {fact_attempt})...")
+                time.sleep(2)
+                script_data = self.script_writer.run({
+                    "selected_topic": topic,
+                    "qc_feedback": f"FACT CHECK FAILED — fix these false claims: {corrections}",
+                })
+                console.print(f"  [green]✓ Script rewritten with corrections[/green]")
 
         # ── Agent 4: Visual Director ────────────────────────────────────
         self._log("Visual Director", "Creating scene breakdown...")

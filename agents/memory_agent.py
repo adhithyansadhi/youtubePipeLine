@@ -39,7 +39,13 @@ class MemoryAgent(BaseAgent):
         if not os.path.exists(path):
             return {"status": "loaded", "used_topics": [], "run_history": []}
         with open(path, "r", encoding="utf-8") as f:
-            data = json.load(f)
+            content = f.read().strip()
+        if not content:
+            return {"status": "loaded", "used_topics": [], "run_history": []}
+        try:
+            data = json.loads(content)
+        except json.JSONDecodeError:
+            return {"status": "loaded", "used_topics": [], "run_history": []}
         return {
             "status": "loaded",
             "used_topics": data.get("used_topics", []),
@@ -50,12 +56,16 @@ class MemoryAgent(BaseAgent):
         path = self._resolved_path()
         os.makedirs(os.path.dirname(path), exist_ok=True)
 
-        # Load existing
+        # Load existing (handle empty/corrupt file gracefully)
+        data = {"used_topics": [], "run_history": []}
         if os.path.exists(path):
-            with open(path, "r", encoding="utf-8") as f:
-                data = json.load(f)
-        else:
-            data = {"used_topics": [], "run_history": []}
+            try:
+                with open(path, "r", encoding="utf-8") as f:
+                    content = f.read().strip()
+                if content:
+                    data = json.loads(content)
+            except json.JSONDecodeError:
+                pass  # Fall through with default empty structure
 
         # Append topic
         if topic and topic not in data["used_topics"]:

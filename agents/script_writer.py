@@ -36,6 +36,13 @@ REQUIREMENTS:
 - Do NOT use filler words like "amazing", "incredible", "literally"
 - Each sentence on its own line for easy reading
 
+CRITICAL ACCURACY RULES:
+- ONLY use REAL, VERIFIABLE facts. Every claim must be something a viewer can Google and confirm.
+- NEVER invent project names, study names, company names, statistics, or events.
+- NEVER use vague phrases like "reportedly", "rumors suggest", "sources say" to cover for made-up claims.
+- If discussing a real event, use the real names, dates, and figures.
+- If you are not 100% certain a fact is real, do NOT include it. Replace it with a different real fact.
+
 Respond with JSON:
 {{
   "hook": "the opening hook sentence only",

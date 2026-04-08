@@ -1,0 +1,54 @@
+{
+  "used_topics": [
+    "AGI rumors explode: Did a new AI just pass the Turing Test?",
+    "Why everyone is suddenly quitting jobs for this $4,000-a-month AI side hustle.",
+    "Is the Earth's magnetic field about to flip? Prepare for chaos!",
+    "Is overpopulation a myth? Scientists reveal shocking new data!",
+    "New species discovered? What lurks inside the Amazon rainforest?",
+    "Ancient city discovered: Does this rewrite human history textbooks?"
+  ],
+  "run_history": [
+    {
+      "timestamp": "2026-04-09T01:20:27.716047",
+      "topic": "AGI rumors explode: Did a new AI just pass the Turing Test?",
+      "title": "Is This AGI?! New AI SMASHED The Turing Test 🤯",
+      "file_path": "D:\\turboquant\\youtubepipeline\\output\\20260409_011112\\short_01_Is_This_AGI___New_AI_SMASHED_The_Turing_.md",
+      "run_id": "20260409_011112"
+    },
+    {
+      "timestamp": "2026-04-09T01:54:19.852317",
+      "topic": "Why everyone is suddenly quitting jobs for this $4,000-a-month AI side hustle.",
+      "title": "Quit Your 9-5? This $4,000 AI Side Hustle is Real! 🤯",
+      "file_path": "D:\\turboquant\\youtubePipeLine\\output\\20260409_014540\\short_01_Quit_Your_9-5__This__4_000_AI_Side_Hustl.md",
+      "run_id": "20260409_014540"
+    },
+    {
+      "timestamp": "2026-04-09T02:16:56.371391",
+      "topic": "Is the Earth's magnetic field about to flip? Prepare for chaos!",
+      "title": "Earth's Poles About to FLIP?! 🤯",
+      "file_path": "D:\\turboquant\\youtubePipeLine\\output\\20260409_020906\\short_01_Earth_s_Poles_About_to_FLIP____.md",
+      "run_id": "20260409_020906"
+    },
+    {
+      "timestamp": "2026-04-09T02:29:04.470313",
+      "topic": "Is overpopulation a myth? Scientists reveal shocking new data!",
+      "title": "Overpopulation… A Myth? 😳",
+      "file_path": "D:\\turboquant\\youtubepipeline\\output\\20260409_022418\\short_01_Overpopulation__A_Myth___.md",
+      "run_id": "20260409_022418"
+    },
+    {
+      "timestamp": "2026-04-09T02:33:42.473372",
+      "topic": "New species discovered? What lurks inside the Amazon rainforest?",
+      "title": "🤯Unseen Amazon Species?!",
+      "file_path": "D:\\turboquant\\youtubepipeline\\output\\20260409_022418\\short_02__Unseen_Amazon_Species__.md",
+      "run_id": "20260409_022418"
+    },
+    {
+      "timestamp": "2026-04-09T02:38:53.395863",
+      "topic": "Ancient city discovered: Does this rewrite human history textbooks?",
+      "title": "Lost City Found! 🤯 History Just Changed!",
+      "file_path": "D:\\turboquant\\youtubepipeline\\output\\20260409_022418\\short_03_Lost_City_Found____History_Just_Changed_.md",
+      "run_id": "20260409_022418"
+    }
+  ]
+}
