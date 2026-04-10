@@ -10,11 +10,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout code
+      # 1. Checkout
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. Setup Python
+      # 2. Python setup
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
@@ -24,39 +24,78 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      # 4. Install ffmpeg (for video rendering)
+      # 4. Install ffmpeg
       - name: Install ffmpeg
         run: sudo apt-get update && sudo apt-get install -y ffmpeg
 
-      # 5. Create .env file in SAME DIRECTORY as main.py
+      # 5. Create .env
       - name: Create .env file
         run: |
           echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" > .env
           echo "OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }}" >> .env
           echo "PEXELS_API_KEY=${{ secrets.PEXELS_API_KEY }}" >> .env
-          echo "OPENROUTER_MODEL=google/gemini-2.0-flash-001" >> .env
-          echo "OPENROUTER_FACT_CHECK_MODEL=perplexity/sonar" >> .env
-          echo "NUM_SHORTS=3" >> .env
-          echo "MOCK_MODE=false" >> .env
-          echo "SKIP_VIDEO_RENDER=false" >> .env
-          echo "YOUTUBE_UPLOAD_ENABLED=true" >> .env
-          echo "YOUTUBE_PRIVACY_STATUS=private" >> .env
 
-      # 🔍 Debug step (temporary – remove later)
-      - name: Debug .env
-        run: |
-          echo "----- .env content -----"
-          cat .env
-          echo "------------------------"
-
-      # 6. Create YouTube credentials
+      # 6. YouTube credentials
       - name: Create YouTube credentials
         run: echo "${{ secrets.YOUTUBE_CREDENTIALS }}" | base64 --decode > client_secret.json
 
-      # 7. Create YouTube token
       - name: Create YouTube token
         run: echo "${{ secrets.YOUTUBE_TOKEN }}" | base64 --decode > token.json
 
-      # 8. Run your app
+      # 7. Run app + capture logs
       - name: Run your app
-        run: python main.py
+        id: run_app
+        run: |
+          python main.py > output.log 2>&1
+
+      # ✅ SUCCESS EMAIL
+      - name: Send success email
+        if: success()
+        run: |
+          python - <<EOF
+          import smtplib
+          from email.mime.text import MIMEText
+          import os
+
+          msg = MIMEText("✅ YouTube video uploaded successfully today!")
+          msg['Subject'] = "YouTube Automation Success"
+          msg['From'] = os.environ['EMAIL_USER']
+          msg['To'] = os.environ['EMAIL_TO']
+
+          with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
+              server.login(os.environ['EMAIL_USER'], os.environ['EMAIL_PASS'])
+              server.send_message(msg)
+          EOF
+        env:
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+
+      # ❌ FAILURE EMAIL
+      - name: Send failure email
+        if: failure()
+        run: |
+          python - <<EOF
+          import smtplib
+          from email.mime.text import MIMEText
+          import os
+
+          try:
+              with open("output.log", "r") as f:
+                  log = f.read()
+          except:
+              log = "No logs found."
+
+          msg = MIMEText(f"❌ YouTube upload failed.\n\nError log:\n\n{log}")
+          msg['Subject'] = "YouTube Automation Failed"
+          msg['From'] = os.environ['EMAIL_USER']
+          msg['To'] = os.environ['EMAIL_TO']
+
+          with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
+              server.login(os.environ['EMAIL_USER'], os.environ['EMAIL_PASS'])
+              server.send_message(msg)
+          EOF
+        env:
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
