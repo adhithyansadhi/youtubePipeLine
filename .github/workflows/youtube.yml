@@ -2,24 +2,51 @@ name: Daily YouTube Generator
 
 on:
   schedule:
-    - cron: '30 3 * * *'   # Runs daily at 9 AM IST (3:30 UTC)
-  workflow_dispatch:       # Manual run button
+    - cron: '30 3 * * *'   # Runs daily at 9:00 AM IST
+  workflow_dispatch:       # Allows manual trigger
 
 jobs:
   run-script:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. Clone your repo
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # 2. Setup Python
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
+      # 3. Install dependencies
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      # 4. Install FFmpeg (needed for video rendering)
+      - name: Install ffmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
+      # 5. Create YouTube OAuth credentials file
+      - name: Create YouTube credentials
+        run: echo "${{ secrets.YOUTUBE_CREDENTIALS }}" | base64 --decode > client_secret.json
+
+      # 6. Create YouTube token file
+      - name: Create YouTube token
+        run: echo "${{ secrets.YOUTUBE_TOKEN }}" | base64 --decode > token.json
+
+      # 7. Run your AI YouTube generator app
       - name: Run your app
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+          OPENROUTER_MODEL: google/gemini-2.0-flash-001
+          OPENROUTER_FACT_CHECK_MODEL: perplexity/sonar
+          NUM_SHORTS: 3
+          MOCK_MODE: false
+          SKIP_VIDEO_RENDER: false
+          YOUTUBE_UPLOAD_ENABLED: true
+          YOUTUBE_PRIVACY_STATUS: private
         run: python main.py
