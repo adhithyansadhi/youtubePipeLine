@@ -1,0 +1,25 @@
+name: Daily YouTube Generator
+
+on:
+  schedule:
+    - cron: '30 3 * * *'   # Runs daily at 9 AM IST (3:30 UTC)
+  workflow_dispatch:       # Manual run button
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run your app
+        run: python main.py
