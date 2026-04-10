@@ -20,7 +20,7 @@ jobs:
         with:
           python-version: '3.10'
 
-      # 3. Cache pip dependencies (🔥 SPEED BOOST)
+      # 3. Cache pip dependencies
       - name: Cache pip dependencies
         uses: actions/cache@v3
         with:
@@ -33,11 +33,29 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      # 5. Install ffmpeg
-      - name: Check ffmpeg
-        run: ffmpeg -version
+      # 5. Cache ffmpeg
+      - name: Cache ffmpeg
+        uses: actions/cache@v3
+        with:
+          path: ffmpeg-bin
+          key: ffmpeg-${{ runner.os }}
 
-      # 6. Create .env file (🔥 FIXED)
+      # 6. Setup ffmpeg (fast install)
+      - name: Setup ffmpeg
+        run: |
+          if [ ! -d "ffmpeg-bin" ]; then
+            mkdir ffmpeg-bin
+            wget https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz
+            tar -xvf ffmpeg-release-amd64-static.tar.xz
+            cp ffmpeg-*-static/ffmpeg ffmpeg-bin/
+            cp ffmpeg-*-static/ffprobe ffmpeg-bin/
+            chmod +x ffmpeg-bin/ffmpeg
+            chmod +x ffmpeg-bin/ffprobe
+          fi
+          sudo cp ffmpeg-bin/ffmpeg /usr/local/bin/
+          sudo cp ffmpeg-bin/ffprobe /usr/local/bin/
+
+      # 7. Create .env file
       - name: Create .env file
         run: |
           echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" > .env
@@ -51,21 +69,21 @@ jobs:
           echo "YOUTUBE_UPLOAD_ENABLED=true" >> .env
           echo "YOUTUBE_PRIVACY_STATUS=private" >> .env
 
-      # 7. Create YouTube credentials
+      # 8. Create YouTube credentials
       - name: Create YouTube credentials
         run: echo "${{ secrets.YOUTUBE_CREDENTIALS }}" | base64 --decode > client_secret.json
 
-      # 8. Create YouTube token
+      # 9. Create YouTube token
       - name: Create YouTube token
         run: echo "${{ secrets.YOUTUBE_TOKEN }}" | base64 --decode > token.json
 
-      # 9. Run app and capture logs
+      # 10. Run app and capture logs
       - name: Run your app
         id: run_app
         run: |
           python main.py > output.log 2>&1
 
-      # ✅ SUCCESS EMAIL
+      # 11. Send SUCCESS email
       - name: Send success email
         if: success()
         run: |
@@ -88,7 +106,7 @@ jobs:
           EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
           EMAIL_TO: ${{ secrets.EMAIL_TO }}
 
-      # ❌ FAILURE EMAIL WITH LOGS
+      # 12. Send FAILURE email with logs
       - name: Send failure email
         if: failure()
         run: |
