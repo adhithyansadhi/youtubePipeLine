@@ -69,6 +69,9 @@ jobs:
           echo "SKIP_VIDEO_RENDER=false" >> .env
           echo "YOUTUBE_UPLOAD_ENABLED=true" >> .env
           echo "YOUTUBE_PRIVACY_STATUS=private" >> .env
+          echo "SCHEDULE_ENABLE=true" >> .env
+          echo "SCHEDULE_TIME=20:00" >> .env
+          echo "SCHEDULE_TIMEZONE=Asia/Kolkata" >> .env
 
       # 8. Create YouTube credentials
       - name: Create YouTube credentials
