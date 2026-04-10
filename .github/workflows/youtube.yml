@@ -2,15 +2,15 @@ name: Daily YouTube Generator
 
 on:
   schedule:
-    - cron: '30 3 * * *'   # Runs daily at 9:00 AM IST
-  workflow_dispatch:       # Allows manual trigger
+    - cron: '30 3 * * *'   # 9 AM IST
+  workflow_dispatch:
 
 jobs:
   run-script:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Clone your repo
+      # 1. Checkout your code
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -24,29 +24,32 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      # 4. Install FFmpeg (needed for video rendering)
+      # 4. Install ffmpeg (needed for video rendering)
       - name: Install ffmpeg
         run: sudo apt-get update && sudo apt-get install -y ffmpeg
 
-      # 5. Create YouTube OAuth credentials file
+      # 5. Create .env file (CRITICAL STEP)
+      - name: Create .env file
+        run: |
+          echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" >> .env
+          echo "OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }}" >> .env
+          echo "PEXELS_API_KEY=${{ secrets.PEXELS_API_KEY }}" >> .env
+          echo "OPENROUTER_MODEL=google/gemini-2.0-flash-001" >> .env
+          echo "OPENROUTER_FACT_CHECK_MODEL=perplexity/sonar" >> .env
+          echo "NUM_SHORTS=3" >> .env
+          echo "MOCK_MODE=false" >> .env
+          echo "SKIP_VIDEO_RENDER=false" >> .env
+          echo "YOUTUBE_UPLOAD_ENABLED=true" >> .env
+          echo "YOUTUBE_PRIVACY_STATUS=private" >> .env
+
+      # 6. Create YouTube credentials (for upload)
       - name: Create YouTube credentials
         run: echo "${{ secrets.YOUTUBE_CREDENTIALS }}" | base64 --decode > client_secret.json
 
-      # 6. Create YouTube token file
+      # 7. Create YouTube token
       - name: Create YouTube token
         run: echo "${{ secrets.YOUTUBE_TOKEN }}" | base64 --decode > token.json
 
-      # 7. Run your AI YouTube generator app
+      # 8. Run your app
       - name: Run your app
-        env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
-          OPENROUTER_MODEL: google/gemini-2.0-flash-001
-          OPENROUTER_FACT_CHECK_MODEL: perplexity/sonar
-          NUM_SHORTS: 3
-          MOCK_MODE: false
-          SKIP_VIDEO_RENDER: false
-          YOUTUBE_UPLOAD_ENABLED: true
-          YOUTUBE_PRIVACY_STATUS: private
         run: python main.py
