@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout your code
+      # 1. Checkout code
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -24,14 +24,14 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      # 4. Install ffmpeg (needed for video rendering)
+      # 4. Install ffmpeg (for video rendering)
       - name: Install ffmpeg
         run: sudo apt-get update && sudo apt-get install -y ffmpeg
 
-      # 5. Create .env file (CRITICAL STEP)
+      # 5. Create .env file in SAME DIRECTORY as main.py
       - name: Create .env file
         run: |
-          echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" >> .env
+          echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" > .env
           echo "OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }}" >> .env
           echo "PEXELS_API_KEY=${{ secrets.PEXELS_API_KEY }}" >> .env
           echo "OPENROUTER_MODEL=google/gemini-2.0-flash-001" >> .env
@@ -42,7 +42,14 @@ jobs:
           echo "YOUTUBE_UPLOAD_ENABLED=true" >> .env
           echo "YOUTUBE_PRIVACY_STATUS=private" >> .env
 
-      # 6. Create YouTube credentials (for upload)
+      # 🔍 Debug step (temporary – remove later)
+      - name: Debug .env
+        run: |
+          echo "----- .env content -----"
+          cat .env
+          echo "------------------------"
+
+      # 6. Create YouTube credentials
       - name: Create YouTube credentials
         run: echo "${{ secrets.YOUTUBE_CREDENTIALS }}" | base64 --decode > client_secret.json
 
