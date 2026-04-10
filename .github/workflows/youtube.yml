@@ -34,8 +34,8 @@ jobs:
         run: pip install -r requirements.txt
 
       # 5. Install ffmpeg
-      - name: Install ffmpeg
-        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: Check ffmpeg
+        run: ffmpeg -version
 
       # 6. Create .env file (🔥 FIXED)
       - name: Create .env file
