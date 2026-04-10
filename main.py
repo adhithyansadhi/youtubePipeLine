@@ -16,7 +16,9 @@ if sys.stderr.encoding != 'utf-8':
 import os
 import argparse
 from pathlib import Path
+from dotenv import load_dotenv
 
+load_dotenv()
 # ── Load .env before importing agents ──────────────────────────────────────
 def load_env():
     env_file = Path(__file__).parent / ".env"
