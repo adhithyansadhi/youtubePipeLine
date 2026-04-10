@@ -6,14 +6,14 @@ from rich.console import Console
 
 console = Console()
 
-# Fact check model from .env (e.g., perplexity/llama-3-sonar-large-32k-online)
-OR_FACT_CHECK_MODEL = os.getenv("OPENROUTER_FACT_CHECK_MODEL", "perplexity/llama-3-sonar-large-32k-online")
+# Fact check model from .env
+HF_FACT_CHECK_MODEL = os.getenv("HF_FACT_CHECK_MODEL", "meta-llama/Llama-3.3-70B-Instruct")
 
 
 class FactCheckerAgent(BaseAgent):
     """
     Agent 15 — Fact Checker Agent
-    Verifies factual claims using a web-connected model via OpenRouter (e.g., Perplexity).
+    Verifies factual claims using a large HF model.
     Ensures that script content is grounded in real-world data and not hallucinated.
     """
     name = "FactCheckerAgent"
@@ -26,7 +26,7 @@ class FactCheckerAgent(BaseAgent):
         if not script:
             return {"verified": True, "claims": [], "summary": "No script to verify."}
 
-        console.print(f"    [dim]Verifying claims with web-grounded model: {OR_FACT_CHECK_MODEL}[/dim]")
+        console.print(f"    [dim]Verifying claims with fact-check model: {HF_FACT_CHECK_MODEL}[/dim]")
         
         prompt = f"""
 You are an ELITE fact-checker for a high-traffic YouTube Shorts channel. 
@@ -62,9 +62,9 @@ RESPONSE FORMAT (JSON ONLY):
 If all claims are TRUE, "corrected_facts" should be an empty string.
 """
         
-        # Call OpenRouter with the specialized fact-check model
+        # Call Hugging Face API with the specialized fact-check model
         try:
-            result = self._call_llm(prompt, model=OR_FACT_CHECK_MODEL)
+            result = self._call_llm(prompt, model=HF_FACT_CHECK_MODEL)
             
             # If the LLM returns a list instead of a dict, wrap it or take the first element
             if isinstance(result, list) and len(result) > 0:
@@ -81,8 +81,8 @@ If all claims are TRUE, "corrected_facts" should be an empty string.
                 
             return result
         except Exception as exc:
-            console.print(f"    [yellow]Web-grounded verification failed: {exc}. Falling back to internal check.[/yellow]")
-            # Fallback to default OpenRouter model if Perplexity fails
+            console.print(f"    [yellow]Verification failed: {exc}. Falling back to internal check.[/yellow]")
+            # Fallback to default HF model if primary fails
             return self._verify_with_fallback(script, topic)
 
     def _verify_with_fallback(self, script: str, topic: str) -> dict:

@@ -8,7 +8,9 @@
     "Ancient city discovered: Does this rewrite human history textbooks?",
     "They found life on Europa? NASA's latest discovery could change everything!",
     "fun science facts",
-    "The Mandela Effect is real? Scientists find proof of alternate realities!"
+    "The Mandela Effect is real? Scientists find proof of alternate realities!",
+    "Elon Musk's Neuralink Can Read Your Thoughts?",
+    "AI Robots Replacing Human Workers by 2028?"
   ],
   "run_history": [
     {
@@ -73,6 +75,20 @@
       "title": "🤯 Alternate Realities Proven?! #Shorts",
       "file_path": "D:\\turboquant\\youtubepipeline\\output\\20260410_002959\\short_03___Alternate_Realities_Proven____Shorts.md",
       "run_id": "20260410_002959"
+    },
+    {
+      "timestamp": "2026-04-11T03:31:31.329119",
+      "topic": "Elon Musk's Neuralink Can Read Your Thoughts?",
+      "title": "Musk Reads Minds? 🤯",
+      "file_path": "D:\\turboquant\\youtubePipeLine\\output\\20260411_032651\\short_01_Musk_Reads_Minds___.md",
+      "run_id": "20260411_032651"
+    },
+    {
+      "timestamp": "2026-04-11T03:38:06.439503",
+      "topic": "AI Robots Replacing Human Workers by 2028?",
+      "title": "Robots 👋 2025?",
+      "file_path": "D:\\turboquant\\youtubepipeline\\output\\20260411_033439\\short_01_Robots___2025_.md",
+      "run_id": "20260411_033439"
     }
   ]
 }

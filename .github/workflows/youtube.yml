@@ -59,10 +59,11 @@ jobs:
       - name: Create .env file
         run: |
           echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" > .env
-          echo "OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }}" >> .env
+          echo "HUGGINGFACE_API_KEY=${{ secrets.HUGGINGFACE_API_KEY }}" >> .env
           echo "PEXELS_API_KEY=${{ secrets.PEXELS_API_KEY }}" >> .env
-          echo "OPENROUTER_MODEL=google/gemini-2.0-flash-001" >> .env
-          echo "OPENROUTER_FACT_CHECK_MODEL=perplexity/sonar" >> .env
+          echo "HF_MODEL=meta-llama/Llama-3.3-70B-Instruct" >> .env
+          echo "HF_FACT_CHECK_MODEL=meta-llama/Llama-3.3-70B-Instruct" >> .env
+          echo "HF_FALLBACK_MODEL=meta-llama/Llama-3.1-8B-Instruct" >> .env
           echo "NUM_SHORTS=3" >> .env
           echo "MOCK_MODE=false" >> .env
           echo "SKIP_VIDEO_RENDER=false" >> .env
